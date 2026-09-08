@@ -1,4 +1,3 @@
-```javascript
 /* ============================================================================
    VENTO DASHBOARD — dashboard.js
    Actualiza visualmente tarjetas, tablas, gauges y texto a partir de los
@@ -10,29 +9,23 @@ let SORT_MATRIZ = {
   dir: "desc"
 };
 
-
 /* ============================================================================
    ACTUALIZAR DASHBOARD
    ============================================================================ */
 
 function updateDashboard() {
 
-  const filtered =
-    applyFilters(APP_STATE.data);
+  const filtered = applyFilters(APP_STATE.data);
 
-  const weeklyRows =
-    calculateWeeklyFulfillment(
-      filtered,
-      APP_STATE.weeksAvailable,
-      APP_STATE.tieneProyeccionSemanal
-    );
+  const weeklyRows = calculateWeeklyFulfillment(
+    filtered,
+    APP_STATE.weeksAvailable,
+    APP_STATE.tieneProyeccionSemanal
+  );
 
-  const capacity =
-    calculateCapacity(filtered);
+  const capacity = calculateCapacity(filtered);
 
-  const fulfillment =
-    calculateFulfillment(filtered);
-
+  const fulfillment = calculateFulfillment(filtered);
 
   renderKPIs(fulfillment);
 
@@ -67,21 +60,10 @@ function updateDashboard() {
     capacity
   );
 
-
-  /* ---------------------------------------------------------- */
-  /* CANAL ACTIVO */
-  /* ---------------------------------------------------------- */
-
-  const canalActivo =
-    document.getElementById("canalActivo");
-
-  if (canalActivo) {
-
-    canalActivo.textContent =
-      FilterState.canal === "TODAS"
-        ? "Vista consolidada — todos los canales"
-        : `Vista filtrada — ${FilterState.canal}`;
-  }
+  document.getElementById("canalActivo").textContent =
+    FilterState.canal === "TODAS"
+      ? "Vista consolidada — todos los canales"
+      : `Vista filtrada — ${FilterState.canal}`;
 }
 
 
@@ -91,73 +73,32 @@ function updateDashboard() {
 
 function renderKPIs(f) {
 
-  const kpiForecast =
-    document.getElementById("kpiForecast");
+  document.getElementById("kpiForecast").textContent =
+    formatNumber(f.forecast);
 
-  if (kpiForecast) {
-    kpiForecast.textContent =
-      formatNumber(f.forecast);
-  }
+  document.getElementById("kpiPedido").textContent =
+    formatNumber(f.pedidoRevisado);
 
+  document.getElementById("kpiCumplido").textContent =
+    formatNumber(f.inventarioCumplido);
 
-  const kpiPedido =
-    document.getElementById("kpiPedido");
+  document.getElementById("kpiPendiente").textContent =
+    formatNumber(
+      Math.max(f.pendiente, 0)
+    );
 
-  if (kpiPedido) {
-    kpiPedido.textContent =
-      formatNumber(f.pedidoRevisado);
-  }
+  document.getElementById("kpiTraslado").textContent =
+    formatNumber(f.trasladoCompletado);
 
-
-  const kpiCumplido =
-    document.getElementById("kpiCumplido");
-
-  if (kpiCumplido) {
-    kpiCumplido.textContent =
-      formatNumber(f.inventarioCumplido);
-  }
-
-
-  const kpiPendiente =
-    document.getElementById("kpiPendiente");
-
-  if (kpiPendiente) {
-    kpiPendiente.textContent =
-      formatNumber(
-        Math.max(f.pendiente, 0)
-      );
-  }
-
-
-  const kpiTraslado =
-    document.getElementById("kpiTraslado");
-
-  if (kpiTraslado) {
-    kpiTraslado.textContent =
-      formatNumber(
-        f.trasladoCompletado
-      );
-  }
-
-
-  /* ---------------------------------------------------------- */
-  /* PORCENTAJE CUMPLIMIENTO */
-  /* ---------------------------------------------------------- */
 
   const pctEl =
-    document.getElementById(
-      "kpiPctCumplimiento"
-    );
+    document.getElementById("kpiPctCumplimiento");
 
   const pctCard =
-    document.getElementById(
-      "kpiPctCumplimientoCard"
-    );
+    document.getElementById("kpiPctCumplimientoCard");
 
   const pctBar =
-    document.getElementById(
-      "kpiPctCumplimientoBarra"
-    );
+    document.getElementById("kpiPctCumplimientoBarra");
 
 
   const sem =
@@ -166,40 +107,32 @@ function renderKPIs(f) {
     );
 
 
-  if (pctEl) {
-
-    pctEl.textContent =
-      formatPercent(
-        f.pctCumplimiento
-      );
-  }
+  pctEl.textContent =
+    formatPercent(
+      f.pctCumplimiento
+    );
 
 
-  if (pctCard) {
-
-    pctCard.className =
-      "card tinted-" +
-      sem.level;
-  }
+  pctCard.className =
+    "card tinted-" +
+    sem.level;
 
 
-  if (pctBar) {
+  pctBar.className =
+    "progress-fill " +
+    sem.level;
 
-    pctBar.className =
-      "progress-fill " +
-      sem.level;
 
-    pctBar.style.width =
-      f.pctCumplimiento === null
-        ? "0%"
-        : Math.min(
-            Math.max(
-              f.pctCumplimiento * 100,
-              0
-            ),
-            100
-          ) + "%";
-  }
+  pctBar.style.width =
+    f.pctCumplimiento === null
+      ? "0%"
+      : Math.min(
+          Math.max(
+            f.pctCumplimiento * 100,
+            0
+          ),
+          100
+        ) + "%";
 }
 
 
@@ -209,48 +142,20 @@ function renderKPIs(f) {
 
 function renderForecastSection(f) {
 
-  const fcForecastVal =
-    document.getElementById(
-      "fcForecastVal"
+  document.getElementById("fcForecastVal").textContent =
+    formatNumber(f.forecast);
+
+  document.getElementById("fcPedidoVal").textContent =
+    formatNumber(f.pedidoRevisado);
+
+  document.getElementById("fcPctVal").textContent =
+    formatPercent(
+      f.pctPedidoVsForecast
     );
-
-  if (fcForecastVal) {
-    fcForecastVal.textContent =
-      formatNumber(f.forecast);
-  }
-
-
-  const fcPedidoVal =
-    document.getElementById(
-      "fcPedidoVal"
-    );
-
-  if (fcPedidoVal) {
-    fcPedidoVal.textContent =
-      formatNumber(
-        f.pedidoRevisado
-      );
-  }
-
-
-  const fcPctVal =
-    document.getElementById(
-      "fcPctVal"
-    );
-
-  if (fcPctVal) {
-    fcPctVal.textContent =
-      formatPercent(
-        f.pctPedidoVsForecast
-      );
-  }
 
 
   const bar =
-    document.getElementById(
-      "fcBarra"
-    );
-
+    document.getElementById("fcBarra");
 
   const sem =
     pctSemaphore(
@@ -258,86 +163,46 @@ function renderForecastSection(f) {
     );
 
 
-  if (bar) {
-
-    bar.style.width =
-      f.pctPedidoVsForecast === null
-        ? "0%"
-        : Math.min(
-            f.pctPedidoVsForecast * 100,
-            100
-          ) + "%";
-
-    bar.className =
-      "progress-fill " +
-      sem.level;
-  }
+  bar.style.width =
+    f.pctPedidoVsForecast === null
+      ? "0%"
+      : Math.min(
+          f.pctPedidoVsForecast * 100,
+          100
+        ) + "%";
 
 
-  /* ---------------------------------------------------------- */
-  /* COMPARACIÓN PEDIDO */
-  /* ---------------------------------------------------------- */
+  bar.className =
+    "progress-fill " +
+    sem.level;
 
-  const cmpPedido =
-    document.getElementById(
-      "cmpPedido"
+
+  document.getElementById("cmpPedido").textContent =
+    formatNumber(
+      f.pedidoRevisado
     );
 
-  if (cmpPedido) {
-    cmpPedido.textContent =
-      formatNumber(
-        f.pedidoRevisado
-      );
-  }
-
-
-  const cmpCumplido =
-    document.getElementById(
-      "cmpCumplido"
+  document.getElementById("cmpCumplido").textContent =
+    formatNumber(
+      f.inventarioCumplido
     );
 
-  if (cmpCumplido) {
-    cmpCumplido.textContent =
-      formatNumber(
-        f.inventarioCumplido
-      );
-  }
-
-
-  const cmpPendiente =
-    document.getElementById(
-      "cmpPendiente"
+  document.getElementById("cmpPendiente").textContent =
+    formatNumber(
+      Math.max(
+        f.pendiente,
+        0
+      )
     );
 
-  if (cmpPendiente) {
-    cmpPendiente.textContent =
-      formatNumber(
-        Math.max(
-          f.pendiente,
-          0
-        )
-      );
-  }
-
-
-  const cmpPct =
-    document.getElementById(
-      "cmpPct"
+  document.getElementById("cmpPct").textContent =
+    formatPercent(
+      f.pctCumplimiento
     );
-
-  if (cmpPct) {
-    cmpPct.textContent =
-      formatPercent(
-        f.pctCumplimiento
-      );
-  }
 
 
   const bar2 =
-    document.getElementById(
-      "cmpBarra"
-    );
-
+    document.getElementById("cmpBarra");
 
   const sem2 =
     pctSemaphore(
@@ -345,23 +210,21 @@ function renderForecastSection(f) {
     );
 
 
-  if (bar2) {
+  bar2.style.width =
+    f.pctCumplimiento === null
+      ? "0%"
+      : Math.min(
+          Math.max(
+            f.pctCumplimiento * 100,
+            0
+          ),
+          100
+        ) + "%";
 
-    bar2.style.width =
-      f.pctCumplimiento === null
-        ? "0%"
-        : Math.min(
-            Math.max(
-              f.pctCumplimiento * 100,
-              0
-            ),
-            100
-          ) + "%";
 
-    bar2.className =
-      "progress-fill " +
-      sem2.level;
-  }
+  bar2.className =
+    "progress-fill " +
+    sem2.level;
 }
 
 
@@ -378,16 +241,6 @@ function renderWeeklyTable(
     document.querySelector(
       "#tablaSemanal tbody"
     );
-
-
-  if (!tbody) {
-
-    console.warn(
-      "No se encontró #tablaSemanal tbody."
-    );
-
-    return;
-  }
 
 
   if (!weeklyRows.length) {
@@ -409,71 +262,72 @@ function renderWeeklyTable(
 
 
   tbody.innerHTML =
-    weeklyRows
-      .map(w => `
-        <tr>
+    weeklyRows.map(w => `
 
-          <td>
-            Semana ${w.week}
-          </td>
+      <tr>
 
-          <td class="num">
-            ${
-              w.proyectado === null
-                ? "SIN PROYECCIÓN"
-                : formatNumber(w.proyectado)
-            }
-          </td>
+        <td>
+          Semana ${w.week}
+        </td>
 
-          <td class="num">
-            ${formatNumber(w.cumplido)}
-          </td>
+        <td class="num">
+          ${
+            w.proyectado === null
+              ? "SIN PROYECCIÓN"
+              : formatNumber(
+                  w.proyectado
+                )
+          }
+        </td>
 
-          <td class="num">
-            ${
-              w.pendiente === null
-                ? "N/A"
-                : formatNumber(w.pendiente)
-            }
-          </td>
+        <td class="num">
+          ${formatNumber(w.cumplido)}
+        </td>
 
-          <td class="num">
-            ${renderPctBadge(w.pctSemanal)}
-          </td>
+        <td class="num">
+          ${
+            w.pendiente === null
+              ? "N/A"
+              : formatNumber(
+                  w.pendiente
+                )
+          }
+        </td>
 
-          <td class="num">
-            ${renderPctBadge(w.pctAcumulado)}
-          </td>
+        <td class="num">
+          ${renderPctBadge(w.pctSemanal)}
+        </td>
 
-          <td>
-            ${renderRhythmBadge(w.ritmo)}
-          </td>
+        <td class="num">
+          ${renderPctBadge(w.pctAcumulado)}
+        </td>
 
-        </tr>
-      `)
-      .join("");
+        <td>
+          ${renderRhythmBadge(w.ritmo)}
+        </td>
 
+      </tr>
 
-  const projectionNote =
-    document.getElementById(
-      "weeklyProjectionNote"
-    );
+    `).join("");
 
 
-  if (projectionNote) {
+  if (!tieneProyeccion) {
 
-    if (!tieneProyeccion) {
+    document
+      .getElementById(
+        "weeklyProjectionNote"
+      )
+      .classList
+      .remove("hidden");
 
-      projectionNote.classList.remove(
-        "hidden"
-      );
+  } else {
 
-    } else {
-
-      projectionNote.classList.add(
-        "hidden"
-      );
-    }
+    document
+      .getElementById(
+        "weeklyProjectionNote"
+      )
+      .classList
+      .add("hidden");
   }
 }
 
@@ -486,6 +340,7 @@ function renderPctBadge(pct) {
 
   const sem =
     pctSemaphore(pct);
+
 
   if (pct === null) {
 
@@ -511,16 +366,6 @@ function renderPctBadge(pct) {
 
 function renderRhythmBadge(ritmo) {
 
-  if (!ritmo) {
-
-    return `
-      <span class="badge badge-neutral">
-        N/A
-      </span>
-    `;
-  }
-
-
   return `
     <span class="badge badge-${ritmo.level}">
       ${ritmo.label}
@@ -530,7 +375,7 @@ function renderRhythmBadge(ritmo) {
 
 
 /* ============================================================================
-   TARJETA ACUMULADO
+   CUMPLIMIENTO ACUMULADO
    ============================================================================ */
 
 function renderAccumulatedCard(
@@ -551,69 +396,42 @@ function renderAccumulatedCard(
     );
 
 
-  const acumPctVal =
-    document.getElementById(
-      "acumPctVal"
-    );
-
-  const acumProyectado =
-    document.getElementById(
-      "acumProyectado"
-    );
-
-  const acumCumplido =
-    document.getElementById(
-      "acumCumplido"
-    );
-
-  const acumPendiente =
-    document.getElementById(
-      "acumPendiente"
-    );
-
-
   if (
     !last ||
     last.pctAcumulado === null
   ) {
 
-    if (acumPctVal) {
-      acumPctVal.textContent =
-        "N/A";
-    }
+    document.getElementById(
+      "acumPctVal"
+    ).textContent = "N/A";
 
 
-    if (acumProyectado) {
-
-      acumProyectado.textContent =
-        "Proyectado acumulado: SIN PROYECCIÓN";
-    }
-
-
-    if (acumCumplido) {
-
-      acumCumplido.textContent =
-        `Cumplido acumulado: ${
-          last
-            ? formatNumber(
-                last.acumuladoCumplido
-              )
-            : 0
-        }`;
-    }
+    document.getElementById(
+      "acumProyectado"
+    ).textContent =
+      "Proyectado acumulado: SIN PROYECCIÓN";
 
 
-    if (acumPendiente) {
+    document.getElementById(
+      "acumCumplido"
+    ).textContent =
+      `Cumplido acumulado: ${
+        last
+          ? formatNumber(
+              last.acumuladoCumplido
+            )
+          : 0
+      }`;
 
-      acumPendiente.textContent =
-        "Pendiente: N/A";
-    }
+
+    document.getElementById(
+      "acumPendiente"
+    ).textContent =
+      "Pendiente: N/A";
 
 
-    if (card) {
-      card.className = "card";
-    }
-
+    card.className =
+      "card";
 
     return;
   }
@@ -625,58 +443,51 @@ function renderAccumulatedCard(
     );
 
 
-  if (acumPctVal) {
+  document.getElementById(
+    "acumPctVal"
+  ).textContent =
+    formatPercent(
+      last.pctAcumulado
+    );
 
-    acumPctVal.textContent =
-      formatPercent(
-        last.pctAcumulado
-      );
-  }
+
+  document.getElementById(
+    "acumProyectado"
+  ).textContent =
+    `Proyectado acumulado: ${
+      formatNumber(
+        last.acumuladoProyectado
+      )
+    }`;
 
 
-  if (acumProyectado) {
+  document.getElementById(
+    "acumCumplido"
+  ).textContent =
+    `Cumplido acumulado: ${
+      formatNumber(
+        last.acumuladoCumplido
+      )
+    }`;
 
-    acumProyectado.textContent =
-      `Proyectado acumulado: ${
-        formatNumber(
-          last.acumuladoProyectado
+
+  document.getElementById(
+    "acumPendiente"
+  ).textContent =
+    `Pendiente: ${
+      formatNumber(
+        Math.max(
+          last.acumuladoProyectado -
+          last.acumuladoCumplido,
+          0
         )
-      }`;
-  }
+      )
+    }`;
 
 
-  if (acumCumplido) {
-
-    acumCumplido.textContent =
-      `Cumplido acumulado: ${
-        formatNumber(
-          last.acumuladoCumplido
-        )
-      }`;
-  }
-
-
-  if (acumPendiente) {
-
-    acumPendiente.textContent =
-      `Pendiente: ${
-        formatNumber(
-          Math.max(
-            last.acumuladoProyectado -
-            last.acumuladoCumplido,
-            0
-          )
-        )
-      }`;
-  }
-
-
-  if (card) {
-
-    card.className =
-      "card tinted-" +
-      sem.level;
-  }
+  card.className =
+    "card tinted-" +
+    sem.level;
 }
 
 
@@ -684,9 +495,7 @@ function renderAccumulatedCard(
    CAPACIDAD
    ============================================================================ */
 
-function renderCapacity(
-  capacity
-) {
+function renderCapacity(capacity) {
 
   renderAllGauges(
     capacity
@@ -725,30 +534,20 @@ function renderDOH(rows) {
 
     if (el) {
 
-      const count =
-        el.querySelector(
-          ".rd-count"
+      el.querySelector(
+        ".rd-count"
+      ).textContent =
+        summary[k].count;
+
+
+      el.querySelector(
+        ".rd-pct"
+      ).textContent =
+        formatPercent(
+          summary[k].pct
         );
-
-      const pct =
-        el.querySelector(
-          ".rd-pct"
-        );
-
-
-      if (count) {
-        count.textContent =
-          summary[k].count;
-      }
-
-
-      if (pct) {
-        pct.textContent =
-          formatPercent(
-            summary[k].pct
-          );
-      }
     }
+
   });
 
 
@@ -756,16 +555,6 @@ function renderDOH(rows) {
     document.querySelector(
       "#tablaDOH tbody"
     );
-
-
-  if (!tbody) {
-
-    console.warn(
-      "No se encontró #tablaDOH tbody."
-    );
-
-    return;
-  }
 
 
   const sorted =
@@ -778,59 +567,61 @@ function renderDOH(rows) {
 
 
   tbody.innerHTML =
-    sorted
-      .map(r => {
+    sorted.map(r => {
 
-        const status =
-          calculateDOHStatus(
-            r.doh
-          );
+      const status =
+        calculateDOHStatus(
+          r.doh
+        );
 
 
-        return `
-          <tr>
+      return `
 
-            <td>
-              ${r.modelo}
-            </td>
+        <tr>
 
-            <td>
-              ${r.canal}
-            </td>
+          <td>
+            ${r.modelo}
+          </td>
 
-            <td class="num">
-              ${formatNumber(
-                r.inventarioGnrl
-              )}
-            </td>
+          <td>
+            ${r.canal}
+          </td>
 
-            <td class="num">
-              ${formatNumber(
-                r.ventas
-              )}
-            </td>
+          <td class="num">
+            ${formatNumber(
+              r.inventarioGnrl
+            )}
+          </td>
 
-            <td class="num">
-              ${formatNumber(
-                r.proVentaMensual
-              )}
-            </td>
+          <td class="num">
+            ${formatNumber(
+              r.ventas
+            )}
+          </td>
 
-            <td class="num">
-              ${r.doh.toFixed(1)}
-            </td>
+          <td class="num">
+            ${formatNumber(
+              r.proVentaMensual
+            )}
+          </td>
 
-            <td>
-              <span class="badge badge-${status.level}">
-                ${status.label}
-              </span>
-            </td>
+          <td class="num">
+            ${r.doh.toFixed(1)}
+          </td>
 
-          </tr>
-        `;
+          <td>
+            <span
+              class="badge badge-${status.level}"
+            >
+              ${status.label}
+            </span>
+          </td>
 
-      })
-      .join("");
+        </tr>
+
+      `;
+
+    }).join("");
 }
 
 
@@ -838,9 +629,7 @@ function renderDOH(rows) {
    PENDIENTES
    ============================================================================ */
 
-function renderPendientes(
-  rows
-) {
+function renderPendientes(rows) {
 
   const pendientes =
     calculatePendientes(
@@ -858,16 +647,6 @@ function renderPendientes(
     document.querySelector(
       "#tablaPendientes tbody"
     );
-
-
-  if (!tbody) {
-
-    console.warn(
-      "No se encontró #tablaPendientes tbody."
-    );
-
-    return;
-  }
 
 
   if (!pendientes.length) {
@@ -890,8 +669,129 @@ function renderPendientes(
 
 
   tbody.innerHTML =
-    pendientes
-      .map(r => `
+    pendientes.map(r => `
+
+      <tr>
+
+        <td>
+          ${r.modelo}
+        </td>
+
+        <td>
+          ${r.canal}
+        </td>
+
+        <td class="num">
+          ${formatNumber(
+            r.pedidoRevisado
+          )}
+        </td>
+
+        <td class="num">
+          ${formatNumber(
+            r.inventarioCumplido
+          )}
+        </td>
+
+        <td class="num">
+          ${formatNumber(
+            r.pendienteCalc
+          )}
+        </td>
+
+        <td class="num">
+          ${formatPercent(
+            safeDiv(
+              r.inventarioCumplido,
+              r.pedidoRevisado
+            )
+          )}
+        </td>
+
+      </tr>
+
+    `).join("");
+}
+
+
+/* ============================================================================
+   ORDENAMIENTO
+   ============================================================================ */
+
+function sortRows(
+  rows,
+  field,
+  dir
+) {
+
+  return rows
+    .slice()
+    .sort((a, b) => {
+
+      const va = a[field];
+      const vb = b[field];
+
+
+      if (
+        typeof va === "string"
+      ) {
+
+        return dir === "asc"
+          ? va.localeCompare(vb)
+          : vb.localeCompare(va);
+      }
+
+
+      return dir === "asc"
+        ? va - vb
+        : vb - va;
+
+    });
+}
+
+
+/* ============================================================================
+   MATRIZ
+   ============================================================================ */
+
+function renderMatriz(rows) {
+
+  const withPendiente =
+    rows.map(r => ({
+
+      ...r,
+
+      pendienteCalc:
+        r.pedidoRevisado -
+        r.inventarioCumplido
+
+    }));
+
+
+  const sorted =
+    sortRows(
+      withPendiente,
+      SORT_MATRIZ.field,
+      SORT_MATRIZ.dir
+    );
+
+
+  const tbody =
+    document.querySelector(
+      "#tablaMatriz tbody"
+    );
+
+
+  tbody.innerHTML =
+    sorted.map(r => {
+
+      const status =
+        calculateDOHStatus(
+          r.doh
+        );
+
+
+      return `
 
         <tr>
 
@@ -901,6 +801,12 @@ function renderPendientes(
 
           <td>
             ${r.canal}
+          </td>
+
+          <td class="num">
+            ${formatNumber(
+              r.forecast
+            )}
           </td>
 
           <td class="num">
@@ -924,188 +830,50 @@ function renderPendientes(
           <td class="num">
             ${formatPercent(
               safeDiv(
+                r.pedidoRevisado,
+                r.forecast
+              )
+            )}
+          </td>
+
+          <td class="num">
+            ${formatPercent(
+              safeDiv(
                 r.inventarioCumplido,
                 r.pedidoRevisado
               )
             )}
           </td>
 
+          <td class="num">
+            ${r.doh.toFixed(1)}
+          </td>
+
+          <td>
+            ${
+              r.estatus
+                ? `
+                  <span class="badge badge-neutral">
+                    ${r.estatus}
+                  </span>
+                `
+                : "—"
+            }
+          </td>
+
+          <td>
+            <span
+              class="badge badge-${status.level}"
+            >
+              ${status.label}
+            </span>
+          </td>
+
         </tr>
 
-      `)
-      .join("");
-}
+      `;
 
-
-/* ============================================================================
-   ORDENAMIENTO
-   ============================================================================ */
-
-function sortRows(
-  rows,
-  field,
-  dir
-) {
-
-  return rows
-    .slice()
-    .sort((a, b) => {
-
-      const va =
-        a[field];
-
-      const vb =
-        b[field];
-
-
-      if (
-        typeof va === "string"
-      ) {
-
-        return dir === "asc"
-          ? va.localeCompare(vb)
-          : vb.localeCompare(va);
-      }
-
-
-      return dir === "asc"
-        ? va - vb
-        : vb - va;
-    });
-}
-
-
-/* ============================================================================
-   MATRIZ
-   ============================================================================ */
-
-function renderMatriz(
-  rows
-) {
-
-  const withPendiente =
-    rows.map(r => ({
-      ...r,
-      pendienteCalc:
-        r.pedidoRevisado -
-        r.inventarioCumplido
-    }));
-
-
-  const sorted =
-    sortRows(
-      withPendiente,
-      SORT_MATRIZ.field,
-      SORT_MATRIZ.dir
-    );
-
-
-  const tbody =
-    document.querySelector(
-      "#tablaMatriz tbody"
-    );
-
-
-  if (!tbody) {
-
-    console.warn(
-      "No se encontró #tablaMatriz tbody."
-    );
-
-    return;
-  }
-
-
-  tbody.innerHTML =
-    sorted
-      .map(r => {
-
-        const status =
-          calculateDOHStatus(
-            r.doh
-          );
-
-
-        return `
-          <tr>
-
-            <td>
-              ${r.modelo}
-            </td>
-
-            <td>
-              ${r.canal}
-            </td>
-
-            <td class="num">
-              ${formatNumber(
-                r.forecast
-              )}
-            </td>
-
-            <td class="num">
-              ${formatNumber(
-                r.pedidoRevisado
-              )}
-            </td>
-
-            <td class="num">
-              ${formatNumber(
-                r.inventarioCumplido
-              )}
-            </td>
-
-            <td class="num">
-              ${formatNumber(
-                r.pendienteCalc
-              )}
-            </td>
-
-            <td class="num">
-              ${formatPercent(
-                safeDiv(
-                  r.pedidoRevisado,
-                  r.forecast
-                )
-              )}
-            </td>
-
-            <td class="num">
-              ${formatPercent(
-                safeDiv(
-                  r.inventarioCumplido,
-                  r.pedidoRevisado
-                )
-              )}
-            </td>
-
-            <td class="num">
-              ${r.doh.toFixed(1)}
-            </td>
-
-            <td>
-              ${
-                r.estatus
-                  ? `
-                    <span class="badge badge-neutral">
-                      ${r.estatus}
-                    </span>
-                  `
-                  : "—"
-              }
-            </td>
-
-            <td>
-              <span class="badge badge-${status.level}">
-                ${status.label}
-              </span>
-            </td>
-
-          </tr>
-        `;
-
-      })
-      .join("");
+    }).join("");
 }
 
 
@@ -1133,22 +901,6 @@ function renderAlerts(
     );
 
 
-  /*
-    CORRECCIÓN:
-    Evitamos ejecutar innerHTML si el elemento
-    no existe en el HTML.
-  */
-
-  if (!cont) {
-
-    console.warn(
-      "No se encontró #listaAlertas en index.html."
-    );
-
-    return;
-  }
-
-
   if (!alerts.length) {
 
     cont.innerHTML = `
@@ -1162,21 +914,23 @@ function renderAlerts(
 
 
   cont.innerHTML =
-    alerts
-      .map(a => `
-        <div class="list-item">
+    alerts.map(a => `
 
-          <span class="badge badge-${a.level}">
-            ●
-          </span>
+      <div class="list-item">
 
-          <span>
-            ${a.text}
-          </span>
+        <span
+          class="badge badge-${a.level}"
+        >
+          ●
+        </span>
 
-        </div>
-      `)
-      .join("");
+        <span>
+          ${a.text}
+        </span>
+
+      </div>
+
+    `).join("");
 }
 
 
@@ -1190,44 +944,6 @@ function renderExecutiveSummary(
   capacity
 ) {
 
-  /*
-    Buscamos el contenedor del resumen.
-  */
-
-  const contenedor =
-    document.getElementById(
-      "resumenEjecutivo"
-    );
-
-
-  /*
-    CORRECCIÓN PRINCIPAL DEL ERROR:
-
-    Si #resumenEjecutivo no existe,
-    document.getElementById() devuelve null.
-
-    Por lo tanto NO debemos ejecutar:
-
-        null.innerHTML = ...
-
-    En su lugar mostramos un aviso en consola
-    y continuamos con el dashboard.
-  */
-
-  if (!contenedor) {
-
-    console.warn(
-      "VENTO DASHBOARD: No se encontró el elemento #resumenEjecutivo en index.html."
-    );
-
-    return;
-  }
-
-
-  /*
-    Generar frases del resumen.
-  */
-
   const frases =
     generateExecutiveSummary(
       rows,
@@ -1236,37 +952,12 @@ function renderExecutiveSummary(
     );
 
 
-  /*
-    Si no se generaron frases,
-    mostramos un mensaje.
-  */
-
-  if (
-    !frases ||
-    !Array.isArray(frases) ||
-    !frases.length
-  ) {
-
-    contenedor.innerHTML = `
-      <p class="muted">
-        No hay información suficiente para
-        generar el resumen ejecutivo.
-      </p>
-    `;
-
-    return;
-  }
-
-
-  /*
-    Renderizar las frases.
-  */
-
-  contenedor.innerHTML =
+  document.getElementById(
+    "resumenEjecutivo"
+  ).innerHTML =
     frases
       .map(
         f => `<p>${f}</p>`
       )
       .join("");
 }
-```
